@@ -48,16 +48,16 @@ export class ProgressState {
     this._startTime = time;
   }
 
-  changeTotalProgress() {
-    this._totalProgress = this._currentBytes / this._totalBytes;
-  }
-
   addTotalBytes(bytes: number) {
     this._totalBytes += bytes;
   }
 
   addCurrentBytes(bytes: number) {
     this._currentBytes += bytes;
+  }
+
+  calculateTotalProgress() {
+    this._totalProgress = this._currentBytes / this._totalBytes;
   }
 
   /**
