@@ -152,7 +152,7 @@ export class HashGenerator {
         remainingTime: 0,
       });
 
-      this._state.changeTotalProgress();
+      this._state.calculateTotalProgress();
 
       this._onNotify({
         type: 'status',
@@ -188,7 +188,7 @@ export class HashGenerator {
         });
 
         this._state.addCurrentBytes(chunkDataArray.length);
-        this._state.changeTotalProgress();
+        this._state.calculateTotalProgress();
         this._state.calculateTotalRemainingTime(ct);
 
         this._onNotify({
@@ -208,7 +208,8 @@ export class HashGenerator {
         hash: algorithm.digest(),
       });
 
-      this._state.changeTotalProgress();
+      this._state.calculateTotalProgress();
+      this._algorithm.delete(index);
 
       this._onNotify({
         type: 'status',
