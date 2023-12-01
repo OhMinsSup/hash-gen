@@ -1,0 +1,77 @@
+{
+  "name": "hash-gen",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./core/dist/index.js",
+  "module": "./core/dist/index.esm.js",
+  "types": "./core/dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "wasm": [
+        "./wasm/dist/index.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./core/dist/index.mjs",
+      "module": "./core/dist/index.esm.js",
+      "require": "./core/dist/index.js"
+    },
+    "./wasm": {
+      "import": "./wasm/dist/index.mjs",
+      "module": "./wasm/dist/index.esm.js",
+      "require": "./wasm/dist/index.js"
+    },
+    "./_internal": {
+      "import": "./_internal/dist/index.mjs",
+      "module": "./_internal/dist/index.esm.js",
+      "require": "./_internal/dist/index.js"
+    }
+  },
+  "license": "MIT",
+  "files": [
+    "_internal/dist/**/*.{js,d.ts,mjs,d.mts}",
+    "core/dist/**/*.{js,d.ts,mjs,d.mts}",
+    "wasm/dist/**/*.{js,d.ts,mjs,d.mts}",
+    "core/package.json",
+    "wasm/package.json",
+    "_internal/package.json"
+  ],
+  "scripts": {
+    "csb:install": "corepack enable && corepack pnpm i",
+    "csb:build": "pnpm build",
+    "clean": "pnpm -r run clean",
+    "watch": "pnpm -r run watch",
+    "build": "pnpm build-package _internal && pnpm build-package core && pnpm build-package wasm",
+    "demo": "vite demo",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@ant-design/icons": "^5.2.6",
+    "@types/node": "^20.9.4",
+    "@types/react": "^18.2.39",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "antd": "^5.11.5",
+    "bunchee": "3.9.2",
+    "browser-fs-access": "^0.35.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "hash-gen": "workspace:*",
+    "lodash.debounce": "^4.0.8",
+    "jiti": "^1.21.0",
+    "prettier": "^3.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "5.0.5",
+    "typescript": "^5.3.2",
+    "vite": "^5.0.4"
+  },
+  "packageManager": "pnpm@8.6.0"
+}
