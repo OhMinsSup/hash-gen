@@ -18,14 +18,14 @@ import {
   updateHashFile,
   getHashFiles,
   ProgressState,
-} from 'hash-gen';
+} from 'hash-gen/core';
 
 import type {
   HashType,
   HashGeneratorParams,
   FileInfo,
   NotifyEvent,
-} from 'hash-gen';
+} from 'hash-gen/core';
 import type { Hasher } from './types';
 
 export class HashGenerator {

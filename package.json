@@ -2,11 +2,14 @@
   "name": "hash-gen",
   "version": "0.0.1",
   "description": "",
-  "main": "./core/dist/index.js",
-  "module": "./core/dist/index.esm.js",
-  "types": "./core/dist/index.d.ts",
+  "main": "./crypto/dist/index.js",
+  "module": "./crypto/dist/index.esm.js",
+  "types": "./crypto/dist/index.d.ts",
   "typesVersions": {
     "*": {
+      "core": [
+        "./core/dist/index.d.ts"
+      ],
       "wasm": [
         "./wasm/dist/index.d.ts"
       ]
@@ -15,6 +18,11 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "import": "./crypto/dist/index.mjs",
+      "module": "./crypto/dist/index.esm.js",
+      "require": "./crypto/dist/index.js"
+    },
+    "./core": {
       "import": "./core/dist/index.mjs",
       "module": "./core/dist/index.esm.js",
       "require": "./core/dist/index.js"
@@ -35,6 +43,8 @@
     "_internal/dist/**/*.{js,d.ts,mjs,d.mts}",
     "core/dist/**/*.{js,d.ts,mjs,d.mts}",
     "wasm/dist/**/*.{js,d.ts,mjs,d.mts}",
+    "crypto/dist/**/*.{js,d.ts,mjs,d.mts}",
+    "crypto/package.json",
     "core/package.json",
     "wasm/package.json",
     "_internal/package.json"

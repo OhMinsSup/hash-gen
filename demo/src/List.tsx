@@ -91,24 +91,7 @@ const List = () => {
       </Card>
       <Card>
         <Table
-          title={() => (
-            <>
-              <Typography.Title level={4}>해시 목록</Typography.Title>
-              <Typography.Title level={5}>
-                <Space split={<Divider type="vertical" />} align="baseline">
-                  <Typography.Paragraph>
-                    {/* 총: {process.length}건 */}
-                  </Typography.Paragraph>
-                  <Typography.Paragraph>
-                    {/* 성공: {success.length}건 */}
-                  </Typography.Paragraph>
-                  <Typography.Paragraph>
-                    {/* 실패: {errors.length}건 */}
-                  </Typography.Paragraph>
-                </Space>
-              </Typography.Title>
-            </>
-          )}
+          title={() => <Typography.Title level={4}>해시 목록</Typography.Title>}
           columns={[
             {
               title: '번호',
@@ -141,16 +124,6 @@ const List = () => {
             },
           ]}
           scroll={{ x: 'max-content' }}
-          pagination={{
-            total: list.length,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            locale: {
-              items_per_page: '개씩 보기',
-              jump_to: '이동',
-              page: '쪽',
-            },
-          }}
           dataSource={list}
           rowKey="index"
         />
