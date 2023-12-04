@@ -8,7 +8,6 @@ import {
   Row,
   Col,
   Space,
-  Divider,
   Progress,
 } from 'antd';
 import { HashGenerator } from 'hash-gen/wasm';
@@ -123,7 +122,7 @@ const List = () => {
               },
             },
           ]}
-          scroll={{ x: 'max-content' }}
+          // scroll={{ x: 'max-content' }}
           dataSource={list}
           rowKey="index"
         />

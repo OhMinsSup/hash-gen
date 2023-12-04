@@ -82,6 +82,8 @@ importers:
 
   core: {}
 
+  crypto: {}
+
   wasm:
     dependencies:
       hash-wasm:

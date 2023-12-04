@@ -1,5 +1,4 @@
 import { createMD5, createSHA1, createSHA256 } from 'hash-wasm';
-
 import {
   CHUNK_SIZE,
   MAX_LIMIT_PAGE_SIZE,
@@ -18,6 +17,7 @@ import {
   updateHashFile,
   getHashFiles,
   ProgressState,
+  TaskQueue,
 } from 'hash-gen/core';
 
 import type {
@@ -36,6 +36,11 @@ export class HashGenerator {
   private _algorithm = new Map<number, Hasher>();
 
   private _onNotify: (event: NotifyEvent) => void = noop;
+
+  private _taskQueue = new TaskQueue({
+    concurrency: 50,
+    autoStart: true,
+  });
 
   /**
    * @description 파일 해시 생성을 시작합니다.
@@ -61,31 +66,100 @@ export class HashGenerator {
     }
 
     this._onNotify({ type: 'start', payload: getHashFiles() });
-    const data = await this._runFilesExclusive(files);
+    const data = await this._runPagination();
     this._onNotify({ type: 'done' });
 
     return data;
   }
 
-  // 파일이 하나라도 2GB 이상이면, 로직 루트를 다른 형태로 수정
-  private async _runFilesExclusive(files: File[]) {
-    let currentPage = 0;
-    const size = files.length > MAX_LIMIT_PAGE_SIZE ? PAGE_SIZE : files.length;
-    const maxPage = Math.ceil(files.length / size);
+  /**
+   * @description 파일 해시 생성을 시작합니다.
+   * @param {HashGeneratorParams}
+   */
+  async runTaskQueue({ hashType, files, onNotify }: HashGeneratorParams) {
+    // 기존 상태를 초기화합니다.
+    this.initState();
+    // 해시 타입 설정
+    this._hashType = hashType;
 
-    while (currentPage < maxPage) {
+    if (isFunction(onNotify)) {
+      this._onNotify = onNotify;
+    }
+
+    // 파일 목록을 해시 생성을 위한 상태로 변환합니다.
+    this._state.changeStartTime(performance.now());
+    this._onNotify({ type: 'initialized' });
+
+    for (const [index, file] of files.entries()) {
+      setInitHashFile(index, file);
+      this._state.addTotalBytes(file.size);
+    }
+
+    this._onNotify({ type: 'start', payload: getHashFiles() });
+    await this._runTaskQueues();
+    this._onNotify({ type: 'done' });
+
+    return getHashFiles();
+  }
+
+  private async _runPagination() {
+    const hashFiles = getHashFiles();
+
+    const isLimitPageSize = hashFiles.length > MAX_LIMIT_PAGE_SIZE;
+
+    if (isLimitPageSize) {
+      let currentPage = 0;
+      const pageSize = isLimitPageSize ? PAGE_SIZE : hashFiles.length;
+      const maxPage = Math.ceil(hashFiles.length / pageSize);
+
+      while (currentPage < maxPage) {
+        const start = currentPage * pageSize;
+        const end = start + pageSize;
+        const currentFiles = hashFiles.slice(start, end);
+
+        const primises = currentFiles.map((file, index) => {
+          const nextIndex = start + index;
+          return this._generateHash(file.file, nextIndex);
+        });
+
+        await Promise.all(primises);
+
+        currentPage += 1;
+      }
+    } else {
+      const promises = hashFiles.map((file, index) =>
+        this._generateHash(file.file, index),
+      );
+      return Promise.all(promises);
+    }
+
+    this._onNotify({
+      type: 'success',
+      payload: getHashFiles(),
+      state: this._state.getState(),
+    });
+
+    return getHashFiles();
+  }
+
+  private async _runTaskQueues() {
+    const hashFiles = getHashFiles();
+    const size =
+      hashFiles.length > MAX_LIMIT_PAGE_SIZE ? PAGE_SIZE : hashFiles.length;
+    const maxPage = Math.ceil(hashFiles.length / size);
+
+    for (let currentPage = 0; currentPage < maxPage; currentPage++) {
       const start = currentPage * size;
       const end = start + size;
-      const currentFiles = files.slice(start, end);
+      const currentFiles = hashFiles.slice(start, end);
 
-      const primises = currentFiles.map((file, index) => {
-        const nextIndex = start + index;
-        return this._generateHash(file, nextIndex);
-      });
-
-      await Promise.all(primises);
-
-      currentPage += 1;
+      await Promise.all(
+        currentFiles.map((data, index) => {
+          return this._taskQueue.add(async () => {
+            await this._generateHash(data.file, start + index);
+          });
+        }),
+      );
     }
 
     this._onNotify({
